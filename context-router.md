@@ -31,9 +31,10 @@ Match your task keywords to the routes you need to read:
 | video messages, circles, recorded video, short video clips | Video Messages |
 | video calls, calling, WebRTC, real-time video, screen sharing | Video Calls |
 | product vision, features, requirements, audience, UX | PRD |
-| tech stack, architecture, project overview, deployment | About |
+| tech stack, architecture, project overview, feature parity | About |
 | milestones, phases, progress, releases, backlog | Roadmap |
 | database, wipe, reset, truncate, redis, flush, operations, runbook, infrastructure | Operations |
+| deployment, nginx, VPS, release, rollback, hosting, production, SSH, docker compose | Deployment |
 
 # context-router.md terminology
 
@@ -101,6 +102,10 @@ Directory Path: project-context/video-calls/README.md
 ## Operations Route
 Runbook for critical operational procedures — database wipes, cache clearing, environment resets. Documents exact commands, prerequisites, and impact for each procedure.
 Directory Path: project-context/operations/README.md
+
+## Deployment Route
+How shmax reaches production at https://raskolniktv.mooo.com/shmax/ on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, and the nginx reverse-proxy rules.
+Directory Path: project-context/deployment/README.md
 
 ## AI Skills and Agents
 Available tools and automated skills for the AI agent (e.g., setup scripts, actualizers).

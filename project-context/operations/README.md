@@ -47,6 +47,7 @@ docker exec messenger-postgres psql -U messenger -d messenger -c "DROP SCHEMA pu
 ```
 docker exec messenger-backend sh -c "alembic upgrade head"
 ```
+Note: this step is local dev only. Production has no backend container and no alembic step — `init_db()` creates tables on API startup.
 3. Flush Redis:
 ```
 docker exec messenger-redis redis-cli FLUSHALL
@@ -63,3 +64,5 @@ Impact: Complete reset — all data and schema destroyed, then rebuilt from migr
 - All procedures assume the Docker Compose stack from `docker-compose.yml` at repository root.
 - Database credentials: user `messenger`, password `messenger`, database `messenger`.
 - Connection string: `postgresql+asyncpg://messenger:messenger@postgres:5432/messenger`.
+- All procedures on this page target the LOCAL dev stack from `docker-compose.yml`, where the containers are named `messenger-postgres` and `messenger-redis`.
+- Production on the Oracle VPS uses `docker-compose.prod.yml` with containers `shmax-postgres` and `shmax-redis`, and has no backend container at all — see project-context/deployment/README.md.
