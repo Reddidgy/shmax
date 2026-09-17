@@ -105,11 +105,18 @@ Give any agent or developer enough context to change, debug, or extend the deplo
 - `EXPO_PUBLIC_API_URL` and `EXPO_PUBLIC_WS_URL` are baked into the frontend bundle at build time and cannot be changed without a rebuild.
 - Source maps must never ship; `deploy.sh` asserts none remain after deletion.
 - Any file nginx serves from a release directory must be world-readable, because nginx runs as `www-data` while releases are owned by `ubuntu`.
+- `backend/.env` does not exist on the server; it is gitignored, so the repo-root `.env` is the only source of production settings.
+- A hand-opened shell does not source the repo-root `.env`, so backend commands run straight from `backend/` fall back to the defaults in `backend/app/config.py`.
+- Those defaults carry the password `messenger`, while the container uses the random `POSTGRES_PASSWORD` from the repo-root `.env`, producing `asyncpg.exceptions.InvalidPasswordError`.
+- Run `set -a; . ./.env; set +a` from the repo root before any manual backend command on the server.
+- Only the repo-root `venv/` created by the fetcher is used by this pipeline; a hand-made `backend/venv/` is ignored by every script.
 
 ## Route-Specific Constraints
 - `mktemp` creates `.release-meta.json` with mode `0600` by default, which made nginx return 403 and fail the smoke check even though the release was live; `deploy.sh` now chmods it `0644` before upload.
 - `/shmax/` returns nginx error 500 ("rewrite or internal redirection cycle") whenever `releases/current` does not resolve; this is expected before the first successful cutover, not a config bug.
 - The first-ever deploy must use `SKIP_BUILD=1 git push`, because the smoke check needs nginx and the release path already live.
+- Never run `alembic upgrade head` on this deployment: `backend/alembic/versions/` is gitignored and empty, so there is no migration history to apply.
+- `init_db()` calls `Base.metadata.create_all` on FastAPI startup and is the only schema-creation step in production.
 - Retention default `RELEASE_KEEP_COUNT=5`; the active and previous releases are always exempt from deletion.
 - Backend API defaults: `HOST=127.0.0.1`, `PORT=8100`, `ROOT_PATH=/shmax/api`.
 - Backend restart grace period is a 10 second window between SIGTERM and SIGKILL.

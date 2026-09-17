@@ -141,3 +141,30 @@ EXPO_PUBLIC_WS_URL=wss://raskolniktv.mooo.com/shmax/api \
 ```
 
 Leave `EXPO_BASE_URL` unset for native builds — the base path is a web-only concern.
+
+## Running backend commands by hand on the server
+
+`nohup_api_shmax.sh` sources the repo-root `.env` before starting uvicorn. A shell you opened
+yourself did not, so any command run straight from `backend/` falls back to the defaults baked
+into `backend/app/config.py` — including `DATABASE_URL=...messenger:messenger@localhost:5432...`.
+The container password is the random one in the repo-root `.env`, so such a command fails with:
+
+```
+asyncpg.exceptions.InvalidPasswordError: password authentication failed for user "messenger"
+```
+
+`backend/.env` does not exist on the server — it is gitignored and never deployed. Export the
+repo-root `.env` first:
+
+```
+cd /home/ubuntu/git/shmax
+set -a; . ./.env; set +a
+cd backend && ../venv/bin/python -c "from app.config import settings; print(settings.DATABASE_URL)"
+```
+
+Do not run `alembic upgrade head` on this deployment. `backend/alembic/versions/` is gitignored
+and empty, so there is no migration history to apply; `init_db()` calls
+`Base.metadata.create_all` on FastAPI startup and is the only schema step that runs.
+
+Use the repo-root `venv/` that `fetcher_shmax.sh` creates. A hand-made `backend/venv/` is not used
+by any script in this pipeline.
