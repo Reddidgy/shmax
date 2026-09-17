@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# pre-push hook: runs ./deploy.sh (frontend build + SCP release to the Oracle VPS) when pushing main.
+# The backend is picked up separately by fetcher_shmax.sh on the server once the push lands.
+#
+# Git calls this hook with: $1 = remote name, $2 = remote URL
+# Git provides stdin lines: <local-ref> <local-sha> <remote-ref> <remote-sha>
+#
+# Set SKIP_BUILD=1 to bypass the build and push directly:
+#   SKIP_BUILD=1 git push
+#
+# Install with: sh scripts/enable-hooks.sh
+
+if [ "${SKIP_BUILD:-0}" = "1" ]; then
+  echo "[pre-push] SKIP_BUILD=1 detected; skipping build and pushing directly."
+  exit 0
+fi
+
+# Inspect every ref being pushed and pick the first deployable branch.
+deploy_branch=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  # Extract branch name from remote ref (e.g., refs/heads/main -> main)
+  branch=$(echo "$remote_ref" | sed 's|refs/heads/||')
+
+  case "$branch" in
+    main)
+      deploy_branch="$branch"
+      break
+      ;;
+  esac
+done
+
+# Exit early if no deployable branch is being pushed.
+if [ -z "$deploy_branch" ]; then
+  exit 0
+fi
+
+echo "[pre-push] $deploy_branch branch detected; running ./deploy.sh"
+DEPLOY_BRANCH="$deploy_branch" ./deploy.sh
+build_exit_code=$?
+
+if [ "$build_exit_code" -ne 0 ]; then
+  echo "[pre-push] deploy failed; push aborted. (SKIP_BUILD=1 git push bypasses the deploy.)"
+  exit 1
+fi
+
+exit 0

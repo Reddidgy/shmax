@@ -52,3 +52,9 @@ dist/
 .praxis/context
 .praxis/user_assets
 /frontend/package-lock.json
+
+# Server runtime state (VPS deployment)
+/releases/
+/logs/
+/run/
+/venv/

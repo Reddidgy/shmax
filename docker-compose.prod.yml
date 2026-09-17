@@ -1,0 +1,38 @@
+# Production data services only. Bound to loopback because nginx and the API (both running on
+# the VPS itself) are the only consumers. The backend itself is NOT containerised on the VPS —
+# it runs from venv/ under fetcher_shmax.sh (see DEPLOY.md).
+name: shmax
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: shmax-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-messenger}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-messenger}
+      POSTGRES_DB: ${POSTGRES_DB:-messenger}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-messenger}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: shmax-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

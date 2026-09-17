@@ -1,0 +1,15 @@
+{
+  "id": "12-xmqm3o",
+  "assignee": "jarvis.json",
+  "priority": "medium",
+  "status": "in_progress",
+  "title": "[12] Deployment work",
+  "why_we_need_this": "you must read route from another project /Users/rugarov/git/karaoker/project-context/nginx/README.md\n\nwe must do exactly the same ways as in this project\n\nrepository: git@github.com:Reddidgy/shmax.git\nyou are able to use ssh on the same server from README.md from karaoker. We will host this messenger on the same host\n\nmake totally the same\n\nEnd https address must be: raskolniktv.mooo.com.conf/shmax/\n\nAll functionalities must work!",
+  "acceptance_criteria": "",
+  "important_constraints": "",
+  "labels": [],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789684389095,
+  "column_entered_at": 1789685519124
+}
