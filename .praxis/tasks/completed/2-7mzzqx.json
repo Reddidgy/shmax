@@ -1,0 +1,15 @@
+{
+  "id": "2-7mzzqx",
+  "assignee": "storm.json",
+  "priority": "medium",
+  "status": "completed",
+  "title": "[2] Improve task (praxis-offline-codex.md)",
+  "why_we_need_this": "работаем только на русском языке. Цель понять что мы могли упустить в \n  задаче /.praxis/tasks/new/1-sxvve5.json\n  \nуспешным выполнением этого запроса будет - утвержденная и обновленная задача только когда я скажу. Давай устроим брейншторм на русском языке и в конечном счете обновим задачу на английском",
+  "acceptance_criteria": "",
+  "important_constraints": "",
+  "labels": [],
+  "on_hold_reason": "",
+  "contextRouterIncluded": true,
+  "created_at": 1789501877467,
+  "column_entered_at": 1789510517082
+}

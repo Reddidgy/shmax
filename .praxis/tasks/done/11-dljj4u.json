@@ -1,0 +1,17 @@
+{
+  "id": "11-dljj4u",
+  "assignee": "jarvis.json",
+  "priority": "medium",
+  "status": "done",
+  "title": "[11] Improve friend adding flow with invite links and mutual requests",
+  "why_we_need_this": "Currently both users must manually search for each other to become friends, which is cumbersome and unintuitive. A simpler flow (e.g. shareable invite link, QR code, or one-sided friend request that the other person just accepts) would significantly improve the onboarding and social experience.",
+  "acceptance_criteria": "- User can send a friend request that the other person accepts or declines (no need for both to search)\n- User can generate a shareable invite link or QR code to add them as a friend\n- Recipient of an invite link/QR code is added as a friend after confirmation\n- Friend requests show as notifications with accept/decline actions\n- Works cross-platform (web, iOS, Android, desktop)",
+  "important_constraints": "",
+  "labels": [
+    "improvement"
+  ],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789521842021,
+  "column_entered_at": 1789698000000
+}

@@ -1,0 +1,17 @@
+{
+  "id": "10-z4heh9",
+  "assignee": "jarvis.json",
+  "priority": "high",
+  "status": "completed",
+  "title": "[10] Implement video calls with cross-platform support",
+  "why_we_need_this": "Users need the ability to make video calls to each other directly from the app. Video calls must work cross-platform (web, mobile, desktop) to ensure all users can communicate regardless of their device!",
+  "acceptance_criteria": "- User can initiate a video call to another user from the chat interface\n- Recipient receives an incoming call notification and can accept or decline\n- Video call supports real-time two-way video and audio streaming\n- Video call works cross-platform: web browsers, iOS, Android, desktop\n- Call UI includes controls: mute/unmute audio, enable/disable video, end call\n- Call quality adapts to network conditions",
+  "important_constraints": "",
+  "labels": [
+    "feature"
+  ],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789521793766,
+  "column_entered_at": 1789682616124
+}

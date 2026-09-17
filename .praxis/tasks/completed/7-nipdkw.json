@@ -1,0 +1,18 @@
+{
+  "id": "7-nipdkw",
+  "assignee": "jarvis.json",
+  "priority": "high",
+  "status": "completed",
+  "title": "[7] Fix API base URL:requests go to localhost instead of server IP when accessing from another machine",
+  "why_we_need_this": "When accessing the app from another computer via 192.168.0.28, the API calls shown in browser Network Tools point to localhost instead of the server API address. This makes the app unusable from any machine other than the server itself, as API requests fail to reach the backend.",
+  "acceptance_criteria": "- API base URL must resolve to the server address (e.g. 192.168.0.28) instead of localhost when the app is accessed from another machine\n- Registration flow works correctly when accessed from a remote machine via the server's IP address\n- Network Tools in the browser show API requests going to the correct server IP, not localhost",
+  "important_constraints": "",
+  "labels": [
+    "bug",
+    "networking"
+  ],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789521260370,
+  "column_entered_at": 1789521643767
+}

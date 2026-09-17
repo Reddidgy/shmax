@@ -1,0 +1,17 @@
+{
+  "id": "9-x2h1d7",
+  "assignee": "jarvis.json",
+  "priority": "medium",
+  "status": "completed",
+  "title": "[9] Implement video circle messages (round video notes)",
+  "why_we_need_this": "Users need the ability to record and send short round video messages (video circles) to each other, similar to popular messengers. This enriches communication by allowing quick personal video notes instead of text-only messages.",
+  "acceptance_criteria": "- User can record a short round video message (video circle) from the chat interface\n- Recorded video is displayed as a circular preview in the conversation\n- Recipient receives and can play the video circle directly in the dialog\n- Video circles support playback controls (play/pause, progress indicator)\n- Video circles are sent and received in real time",
+  "important_constraints": "",
+  "labels": [
+    "feature"
+  ],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789521763426,
+  "column_entered_at": 1789680703396
+}

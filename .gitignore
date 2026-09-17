@@ -1,0 +1,54 @@
+.praxis/config/
+/.praxis/api/
+/.praxis/assets/
+/.mcp.json
+/.praxis/context/context-map.yaml
+/.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+backend/.env
+backend/alembic/versions/*.py
+
+# Local media uploads (local file storage, not committed)
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Node / React Native
+node_modules/
+frontend/node_modules/
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.DS_Store
+.praxis/scripts
+.praxis/prompts
+.praxis/assets
+.praxis/api
+.praxis/analytics
+.praxis/chat
+.praxis/context
+.praxis/user_assets
+/frontend/package-lock.json

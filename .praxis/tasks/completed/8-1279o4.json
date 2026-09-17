@@ -1,0 +1,17 @@
+{
+  "id": "8-1279o4",
+  "assignee": "jarvis.json",
+  "priority": "high",
+  "status": "completed",
+  "title": "[8] Dialog does not show real-time updates from other users",
+  "why_we_need_this": "Currently a user has to leave and re-enter a dialog to see new messages or updates from another person. This breaks the real-time communication experience and makes the chat unusable for live conversations.",
+  "acceptance_criteria": "- Dialog displays new messages from other participants in real time without requiring page reload or re-entry\n- Updates (edits, status changes) from other users appear automatically while the dialog is open\n- No manual refresh or navigation action needed to see the latest state of the conversation",
+  "important_constraints": "",
+  "labels": [
+    "bug"
+  ],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789521731227,
+  "column_entered_at": 1789524139174
+}

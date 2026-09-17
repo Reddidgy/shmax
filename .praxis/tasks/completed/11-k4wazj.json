@@ -1,0 +1,15 @@
+{
+  "id": "11-k4wazj",
+  "assignee": "jarvis.json",
+  "priority": "medium",
+  "status": "completed",
+  "title": "[11] Fix:calls",
+  "why_we_need_this": "videocall is not possible to get. user who calls (caller) sending the call but user sometimes doesn't see the call dialogue, sometimes he can see it (in this case after accepting call is ending at once)\nYou must fix it by best practices!",
+  "acceptance_criteria": "",
+  "important_constraints": "",
+  "labels": [],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789682854654,
+  "column_entered_at": 1789684364812
+}

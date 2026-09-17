@@ -1,0 +1,1 @@
+align @.praxis/assignees/dorofeev.json to best practices and translate in english. Instead of replacement one context to another you must merge approaches to make this AI assignee the best

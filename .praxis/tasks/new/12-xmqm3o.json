@@ -1,0 +1,15 @@
+{
+  "id": "12-xmqm3o",
+  "assignee": "jarvis.json",
+  "priority": "medium",
+  "status": "new",
+  "title": "[12] Deployment work",
+  "why_we_need_this": "you must read route from another project /Users/rugarov/git/karaoker/project-context/nginx/README.md\n\nwe must do exactly the same ways as in this project",
+  "acceptance_criteria": "",
+  "important_constraints": "",
+  "labels": [],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789684389095,
+  "column_entered_at": 1789684389095
+}
