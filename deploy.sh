@@ -202,6 +202,9 @@ cat > "${LOCAL_RELEASE_METADATA_FILE}" <<EOF
 }
 EOF
 
+# mktemp creates the file 0600; nginx (www-data) serves it, so it must be world-readable.
+chmod 0644 "${LOCAL_RELEASE_METADATA_FILE}"
+
 log "Preparing remote release directory ${REMOTE_RELEASE_DIR}..."
 run_remote_script "set -euo pipefail; mkdir -p '${REMOTE_RELEASES_DIR}' '${REMOTE_RELEASE_DIR}'"
 
