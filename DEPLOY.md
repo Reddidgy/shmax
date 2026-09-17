@@ -126,3 +126,18 @@ the Praxis commit hook as "close this task" and auto-completes it.
 The dev server stays unaffected — `frontend/app.config.js` only sets `experiments.baseUrl` when
 `EXPO_BASE_URL` is set in the environment (which `deploy.sh` does for production builds only).
 Local dev and native builds leave `EXPO_BASE_URL` unset and behave exactly as before.
+
+## Native builds (iOS / Android / desktop) against production
+
+`deploy.sh` only builds the **web** export. A native build that should talk to the production
+server must be built with the same two variables that `deploy.sh` exports, because Expo inlines
+`EXPO_PUBLIC_*` at build time (`frontend/services/config.ts` otherwise falls back to
+`localhost:8000`):
+
+```
+EXPO_PUBLIC_API_URL=https://raskolniktv.mooo.com/shmax/api \
+EXPO_PUBLIC_WS_URL=wss://raskolniktv.mooo.com/shmax/api \
+  npx expo run:ios      # or run:android / eas build
+```
+
+Leave `EXPO_BASE_URL` unset for native builds — the base path is a web-only concern.
