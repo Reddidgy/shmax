@@ -73,12 +73,12 @@ class Settings(BaseSettings):
                     "credential": self.TURN_SERVER_CREDENTIAL,
                 },
                 {
-                    "urls": f"turn:{turn_base}:443?transport=tcp",
+                    "urls": f"turn:{turn_base}:3478?transport=tcp",
                     "username": self.TURN_SERVER_USERNAME,
                     "credential": self.TURN_SERVER_CREDENTIAL,
                 },
                 {
-                    "urls": f"turns:{turn_base}:443?transport=tcp",
+                    "urls": f"turns:{turn_base}:5349?transport=tcp",
                     "username": self.TURN_SERVER_USERNAME,
                     "credential": self.TURN_SERVER_CREDENTIAL,
                 },

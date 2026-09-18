@@ -2,7 +2,7 @@
   "id": "14-s7ogup",
   "assignee": "jarvis.json",
   "priority": "high",
-  "status": "to_review",
+  "status": "completed",
   "title": "[14] Integrate Metered.ca TURN server and make ICE config dynamic",
   "why_we_need_this": "Video calls fail for users behind restrictive NATs (e.g. Russian ISPs) because: (1) the only configured STUN servers are Google's (stun.l.google.com), which are blocked/unreliable in Russia; (2) TURN_SERVER_URL is empty — no relay fallback exists; (3) ICE servers are hardcoded in frontend/services/webrtc.ts and ignore backend TURN config entirely. Without a working TURN relay, calls cannot connect when direct/STUN paths are blocked.",
   "acceptance_criteria": "1. Backend exposes ICE server list dynamically: a new endpoint GET /calls/ice-servers (or include in WebSocket call_initiated/incoming_call payloads) returns the full ICE server array built from STUN_SERVERS + TURN env vars in config.py\n2. Frontend fetches ICE servers from backend instead of using the hardcoded list in @frontend/services/webrtc.ts — the hardcoded Google STUN fallback remains only if the backend is unreachable\n3. Replace default Google STUN servers with Metered.ca STUN+TURN URLs in production env vars (STUN_SERVERS, TURN_SERVER_URL, TURN_SERVER_USERNAME, TURN_SERVER_CREDENTIAL)\n4. TURN config includes both UDP and TCP/TLS (port 443) transports so traffic passes through firewalls that block non-HTTPS ports\n5. Calls connect successfully when both peers are behind symmetric NAT (TURN relay path works end-to-end)\n6. Existing call flow (direct/STUN path) still works — no regression for users with open connectivity\n7. .env.example updated with Metered.ca placeholder values and comments explaining each TURN variable\n8. All platforms (web, iOS, Android) receive and use the dynamic ICE config",
@@ -15,5 +15,5 @@
   "on_hold_reason": "",
   "contextRouterIncluded": false,
   "created_at": 1789688847178,
-  "column_entered_at": 1789689190209
+  "column_entered_at": 1789689842357
 }

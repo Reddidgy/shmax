@@ -1,0 +1,15 @@
+{
+  "id": "16-pnbec5",
+  "assignee": "cartographer.json",
+  "priority": "medium",
+  "status": "to_review",
+  "title": "[16] Merge: DEPLOY.md SETUP.md to project route",
+  "why_we_need_this": "currently it's a bad structure. Setup and deploy must be routes in the project.. Because all the docs must be there",
+  "acceptance_criteria": "",
+  "important_constraints": "",
+  "labels": [],
+  "on_hold_reason": "",
+  "contextRouterIncluded": false,
+  "created_at": 1789690025307,
+  "column_entered_at": 1789690364955
+}

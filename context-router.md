@@ -34,7 +34,8 @@ Match your task keywords to the routes you need to read:
 | tech stack, architecture, project overview, feature parity | About |
 | milestones, phases, progress, releases, backlog | Roadmap |
 | database, wipe, reset, truncate, redis, flush, operations, runbook, infrastructure | Operations |
-| deployment, nginx, VPS, release, rollback, hosting, production, SSH, docker compose | Deployment |
+| deployment, nginx, VPS, release, rollback, hosting, production, SSH, docker compose, coturn, TURN | Deployment |
+| setup, prerequisites, quickstart, local dev, environment variables, troubleshooting, onboarding | Developer Setup |
 
 # context-router.md terminology
 
@@ -104,8 +105,12 @@ Runbook for critical operational procedures — database wipes, cache clearing, 
 Directory Path: project-context/operations/README.md
 
 ## Deployment Route
-How shmax reaches production at https://raskolniktv.mooo.com/shmax/ on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, and the nginx reverse-proxy rules.
+How shmax reaches production at https://raskolniktv.mooo.com/shmax/ on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, coturn TURN relay, and the nginx reverse-proxy rules. Includes the operator runbook.
 Directory Path: project-context/deployment/README.md
+
+## Developer Setup Route
+Local development environment setup: prerequisites, Docker quickstart, manual setup, database migrations, environment variables, and troubleshooting.
+Directory Path: project-context/dev-setup/README.md
 
 ## AI Skills and Agents
 Available tools and automated skills for the AI agent (e.g., setup scripts, actualizers).

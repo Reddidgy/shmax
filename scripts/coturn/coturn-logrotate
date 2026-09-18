@@ -1,0 +1,11 @@
+/var/log/coturn/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    postrotate
+        systemctl reload coturn 2>/dev/null || true
+    endscript
+}

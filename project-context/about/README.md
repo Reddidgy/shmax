@@ -27,7 +27,6 @@ Monorepo Frontend (single React Native + Expo codebase for web, iOS, Android), P
 - frontend/services/api.ts — HTTP client with auth token injection and automatic 401 refresh
 - frontend/services/config.ts — Dynamic API/WebSocket base URL resolution (uses window.location.hostname on web, env var or localhost fallback on native)
 - .env.example — Environment variable template
-- SETUP.md — Developer setup instructions
 
 ## Tech Stack (Implemented)
 

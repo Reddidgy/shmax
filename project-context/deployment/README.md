@@ -8,9 +8,10 @@
 - Releases are immutable timestamped directories under `releases/`, cut over via an atomic symlink swap.
 - `fetcher_shmax.sh` polls `git fetch origin` every 5 seconds on the VPS as the backend supervisor.
 - In production only PostgreSQL and Redis run in Docker; the FastAPI backend runs natively.
+- coturn TURN relay runs as a systemd service on the VPS for WebRTC NAT traversal (UDP/TCP 3478, TLS 5349).
 - nginx routing and WebSocket proxy rules for `/shmax/` live in the separate `oracle_nginx_config` repository.
 
-This route explains how shmax reaches production on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, the containers policy, and the nginx reverse-proxy layer. It covers the mechanism and the rules behind each piece; exact operator commands live in `@DEPLOY.md`.
+This route explains how shmax reaches production on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, the containers policy, the coturn TURN relay, and the nginx reverse-proxy layer. It covers the mechanism, the rules, and the operator runbook.
 
 ## Purpose
 Give any agent or developer enough context to change, debug, or extend the deployment pipeline without breaking production, and to understand why the frontend and backend are deployed by two entirely different mechanisms on the same shared VPS.
@@ -90,6 +91,96 @@ Give any agent or developer enough context to change, debug, or extend the deplo
 - `client_max_body_size 25m` on the API location gives headroom above the API's own 10 MB media upload cap.
 - Media uploads are served back through the same `/shmax/api/` prefix, because the frontend builds media URLs as `API_BASE_URL` plus the `/uploads/...` path the API returns.
 
+### coturn TURN relay (@scripts/coturn/)
+- coturn provides STUN and TURN relay for WebRTC calls that cannot connect peer-to-peer through restrictive NATs.
+- coturn runs as a systemd service (`coturn.service`), not under the fetcher or any project supervisor.
+- coturn listens on UDP/TCP 3478 (STUN + TURN) and TCP 5349 (TURNS over TLS).
+- coturn reuses the Let's Encrypt certificate from `/etc/letsencrypt/live/raskolniktv.mooo.com/`; the `turnserver` user has ACL read access.
+- Relay port range is restricted to UDP 49152–50175 (1024 ports) to minimize firewall surface.
+- Bandwidth limits (`max-bps=1000000`, `total-quota=100`) prevent coturn from starving other services on the shared VPS.
+- Credentials use the long-term-credential mechanism; username and password live only in `/etc/turnserver.conf`, never in the repo.
+- Backend reads TURN credentials from env vars `TURN_SERVER_URL`, `TURN_SERVER_USERNAME`, `TURN_SERVER_CREDENTIAL` in the repo-root `.env`.
+- `scripts/coturn/setup_coturn.sh` is a one-time root script that installs coturn, generates credentials, writes `/etc/turnserver.conf`, and enables the systemd service.
+- Logs go to `/var/log/coturn/turnserver.log` with daily rotation (7 days retained).
+- Oracle Cloud Security List and OS iptables must both allow the coturn ports; setup_coturn.sh prints the required iptables commands.
+- coturn runs as a dedicated `turnserver` system user, never as root.
+
+## Server Layout
+
+```
+/home/ubuntu/git/shmax/
+  backend/                      # FastAPI app (app/main.py) pulled by fetcher_shmax.sh
+  frontend/                     # Expo app; only its build output is deployed (via deploy.sh)
+  releases/
+    <timestamp>-<sha>/          # one frontend build per deploy
+    current -> <timestamp>-<sha>/   # symlink deploy.sh repoints atomically
+  venv/                         # created by nohup_fetcher_shmax.sh (repo-root venv)
+  logs/
+    fetcher_shmax.log
+    api_shmax.log
+  run/
+    fetcher_shmax.pid
+    api_shmax.pid
+  .env                          # from .env.example, never committed
+  deploy.sh
+  fetcher_shmax.sh
+  nohup_api_shmax.sh
+  nohup_fetcher_shmax.sh
+  docker-compose.prod.yml
+```
+
+## Operator Runbook
+
+### One-time setup
+1. Local: `sh scripts/enable-hooks.sh` (installs `scripts/hooks/pre-push` into `.git/hooks` and sets `core.hooksPath`).
+2. Server: `git clone git@github.com:Reddidgy/shmax.git /home/ubuntu/git/shmax`, checked out on `main`.
+3. Server: `cp .env.example .env` (repo root) and fill in `HOST`, `PORT`, `ROOT_PATH`, `POSTGRES_USER`/`POSTGRES_PASSWORD`/`POSTGRES_DB`, `DATABASE_URL`, `REDIS_URL`, and `SECRET_KEY` (generate with `openssl rand -hex 32`). See the "Production" section appended to `.env.example` for the exact keys and quoting rules.
+4. Server: `docker compose -f docker-compose.prod.yml up -d` — starts `shmax-postgres` and `shmax-redis`.
+5. Server: `./nohup_fetcher_shmax.sh` — creates `venv/` with the first Python >= 3.9 that has `venv` (on this VPS that's `python3.9`, since the default `python3` is 3.8), installs requirements, ensures the infra containers are up, and starts the API.
+6. Local: the FIRST push that introduces these scripts must use `SKIP_BUILD=1 git push`, because the smoke check needs nginx and the API already live on the server before it can pass. After that, `git push` (or `./deploy.sh`) ships the first real frontend release.
+
+### Everyday use
+- Backend change: commit + push. `fetcher_shmax.sh` pulls within ~5 s, reinstalls `backend/requirements.txt` if it changed, and restarts `uvicorn` by PID.
+- Frontend change: `git push` on `main` triggers the pre-push hook, which runs `deploy.sh` (build + upload + cutover + smoke check).
+- `SKIP_BUILD=1 git push` — pushes without building/deploying the frontend.
+- `./deploy.sh` — runs the frontend deploy manually (also usable with `DEPLOY_BRANCH=main`).
+
+### Rollback
+- Frontend: repoint the symlink to an older release, no restart needed:
+  ```
+  ln -s releases/<older-timestamp>-<sha> releases/current.tmp && mv -Tf releases/current.tmp releases/current
+  ```
+- Backend: `git revert` the offending commit and push `main`; `fetcher_shmax.sh` picks it up on its next poll.
+
+### Operations
+- Logs: `tail -f logs/fetcher_shmax.log logs/api_shmax.log` (on the server).
+- Status: check `run/fetcher_shmax.pid` and `run/api_shmax.pid` against `ps`.
+- Infra: `docker compose -f docker-compose.prod.yml ps` to check `shmax-postgres` / `shmax-redis`.
+- Stop: stop the fetcher first (`kill "$(cat run/fetcher_shmax.pid)"`), then the API (`kill "$(cat run/api_shmax.pid)"`) — stopping the API alone gets it restarted by the fetcher within ~30 s.
+- After a VPS reboot: the two containers (`restart: unless-stopped`) and coturn (`coturn.service`) autostart. `./nohup_fetcher_shmax.sh` must be re-run manually — there is no systemd unit or autostart for the fetcher or the API.
+
+### TURN server (coturn) setup
+```
+ssh ubuntu@158.101.177.72
+cd /home/ubuntu/git/shmax
+sudo bash scripts/coturn/setup_coturn.sh
+```
+After running the script: open ports in Oracle Cloud Console (UDP 3478, TCP 3478, TCP 5349, UDP 49152–50175), open same ports in OS firewall (commands printed by script), add printed `TURN_SERVER_URL`/`TURN_SERVER_USERNAME`/`TURN_SERVER_CREDENTIAL`/`STUN_SERVERS` to `.env`, restart the API: `kill "$(cat run/api_shmax.pid)"`.
+
+- Status: `systemctl status coturn`
+- Logs: `tail -f /var/log/coturn/turnserver.log`
+- Config: `/etc/turnserver.conf`
+- Cert renewal: restart coturn after Let's Encrypt renewal if needed (`sudo systemctl restart coturn`)
+
+### Manual backend commands on the server
+`nohup_api_shmax.sh` sources the repo-root `.env` before starting uvicorn. A shell you opened yourself did not, so any command run straight from `backend/` falls back to the defaults baked into `backend/app/config.py` — including a wrong `DATABASE_URL` with password `messenger` instead of the random one in the repo-root `.env`. Fix:
+```
+cd /home/ubuntu/git/shmax
+set -a; . ./.env; set +a
+cd backend && ../venv/bin/python -c "from app.config import settings; print(settings.DATABASE_URL)"
+```
+Do not run `alembic upgrade head` on this deployment. `backend/alembic/versions/` is gitignored and empty; `init_db()` calls `Base.metadata.create_all` on FastAPI startup and is the only schema step that runs. Use the repo-root `venv/` that `fetcher_shmax.sh` creates; a hand-made `backend/venv/` is not used by any script in this pipeline.
+
 ## Invariants
 - Only main is deployable; `deploy.sh` refuses any other branch.
 - A non-zero exit from `deploy.sh` aborts the `git push`, so a broken build never reaches the server.
@@ -125,8 +216,7 @@ Give any agent or developer enough context to change, debug, or extend the deplo
 - Tail `logs/fetcher_shmax.log` and `logs/api_shmax.log` on the server to watch either pipeline.
 - Check `run/fetcher_shmax.pid` and `run/api_shmax.pid` against `ps` for liveness.
 - Server runtime state (`releases/`, `logs/`, `run/`, `venv/`, `.env`) is gitignored and never part of any pull or push.
-- Nothing except the two containers autostarts after a VPS reboot; `./nohup_fetcher_shmax.sh` must be re-run manually.
+- The two containers and coturn autostart after a VPS reboot; `./nohup_fetcher_shmax.sh` must be re-run manually for the fetcher and API.
 - Frontend rollback is repointing `releases/current` at an older release directory and needs no API restart.
 - Backend rollback is `git revert` plus `git push`; the fetcher picks it up on its next poll.
 - A bracketed Praxis task id such as `[12-xmqm3o]` in a commit message auto-completes that task; use an unbracketed `12-xmqm3o:` prefix instead when the commit should not close the task.
-- `@DEPLOY.md` at the repo root is the operator runbook with the exact commands; this route explains the mechanism and the rules behind it.
