@@ -36,7 +36,7 @@ fi
 # Loopback only (nginx is the public entry point).
 export HOST="${HOST:-127.0.0.1}"
 export PORT="${PORT:-8100}"
-export ROOT_PATH="${ROOT_PATH:-/shmax/api}"
+export ROOT_PATH="${ROOT_PATH:-/api}"
 
 # cd backend so pydantic-settings finds backend/.env and relative paths behave; exec is required
 # so the recorded PID is the uvicorn process itself (not a subshell), which is what the

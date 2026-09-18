@@ -2,7 +2,7 @@
   "id": "15-ilp9tb",
   "assignee": "rodion.json",
   "priority": "high",
-  "status": "to_review",
+  "status": "completed",
   "title": "[15] Deploy self-hosted coturn TURN server on the Oracle VPS",
   "why_we_need_this": "Video calls fail for users behind restrictive NATs (e.g. Russian ISPs) because there is no TURN relay server. Hosted TURN services (Metered.ca) cost $99+/month for usable bandwidth. The Oracle VPS that already hosts Shmax (raskolniktv.mooo.com) has free bandwidth — running coturn there costs $0 extra and provides unlimited relay traffic for 1:1 calls.",
   "acceptance_criteria": "1. coturn is installed and running on the Oracle VPS as a systemd service (auto-starts on reboot)\n2. coturn listens on UDP/3478 (STUN+TURN), TCP/3478 (TURN TCP), and TLS/443 or TLS/5349 (TURNS) — TLS transport is mandatory for passing through restrictive firewalls\n3. A valid TLS certificate is configured for TURNS (can reuse the existing Let's Encrypt cert from nginx, or generate a separate one for the TURN subdomain)\n4. Static credentials (long-term-credential mechanism) are configured in turnserver.conf — username/password stored only in the conf file on the VPS, not in the repo\n5. Oracle VPS firewall (iptables/nftables + Oracle Cloud security list) allows inbound UDP 3478, TCP 3478, TCP 5349 (or 443), and UDP 49152–65535 (relay range)\n6. Shmax backend env vars are set: STUN_SERVERS, TURN_SERVER_URL, TURN_SERVER_USERNAME, TURN_SERVER_CREDENTIAL pointing to the coturn instance\n7. Verified: `turnutils_uclient` (or browser test) confirms TURN allocation succeeds from an external network\n8. coturn does not interfere with existing nginx on port 443 — either use port 5349 for TURNS, or a dedicated IP/subdomain, or share 443 via SNI\n9. Log rotation is configured for coturn logs so the VPS disk doesn't fill up\n10. The VPS hosts multiple projects — coturn must not degrade performance for other services (set max-bps and total-quota limits in turnserver.conf)",
@@ -15,5 +15,5 @@
   "on_hold_reason": "",
   "contextRouterIncluded": false,
   "created_at": 1789689217848,
-  "column_entered_at": 1789690231410
+  "column_entered_at": 1789690558753
 }

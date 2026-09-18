@@ -3,7 +3,7 @@
 # Run as root: sudo bash scripts/coturn/setup_coturn.sh
 set -euo pipefail
 
-DOMAIN="raskolniktv.mooo.com"
+DOMAIN="shmax.praxisos.dev"
 CONF_SRC="$(cd "$(dirname "$0")" && pwd)"
 LOGDIR="/var/log/coturn"
 

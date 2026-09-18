@@ -105,7 +105,7 @@ Runbook for critical operational procedures — database wipes, cache clearing, 
 Directory Path: project-context/operations/README.md
 
 ## Deployment Route
-How shmax reaches production at https://raskolniktv.mooo.com/shmax/ on the shared Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, coturn TURN relay, and the nginx reverse-proxy rules. Includes the operator runbook.
+How shmax reaches production at https://shmax.praxisos.dev/ on the Oracle VPS: the push-triggered frontend release pipeline, the server-side git-polling backend supervisor, coturn TURN relay, and the nginx reverse-proxy rules. Includes the operator runbook.
 Directory Path: project-context/deployment/README.md
 
 ## Developer Setup Route

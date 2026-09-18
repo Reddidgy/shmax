@@ -34,8 +34,8 @@ SSH_OPTS="-o ConnectTimeout=10 -o ServerAliveInterval=15 -o ServerAliveCountMax=
 RELEASE_KEEP_COUNT="${RELEASE_KEEP_COUNT:-5}"
 FRONTEND_DIR="frontend"
 DIST_DIR="${FRONTEND_DIR}/dist"
-BASE_PATH="/shmax/"
-SMOKE_BASE_URL="${DEPLOY_SMOKE_BASE_URL:-https://raskolniktv.mooo.com/shmax}"
+BASE_PATH="/"
+SMOKE_BASE_URL="${DEPLOY_SMOKE_BASE_URL:-https://shmax.praxisos.dev}"
 SMOKE_TIMEOUT_SECONDS="${DEPLOY_SMOKE_TIMEOUT_SECONDS:-20}"
 
 log() {
@@ -150,10 +150,10 @@ if [ -n "$(git status --porcelain -- "${FRONTEND_DIR}" 2>/dev/null)" ]; then
   log "WARNING: ${FRONTEND_DIR} has uncommitted changes; they are included in this build."
 fi
 
-export EXPO_BASE_URL="/shmax"
-export EXPO_PUBLIC_API_URL="${DEPLOY_API_URL:-https://raskolniktv.mooo.com/shmax/api}"
-export EXPO_PUBLIC_WS_URL="${DEPLOY_WS_URL:-wss://raskolniktv.mooo.com/shmax/api}"
-log "Build env: EXPO_BASE_URL=${EXPO_BASE_URL} EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL} EXPO_PUBLIC_WS_URL=${EXPO_PUBLIC_WS_URL}"
+unset EXPO_BASE_URL
+export EXPO_PUBLIC_API_URL="${DEPLOY_API_URL:-https://shmax.praxisos.dev/api}"
+export EXPO_PUBLIC_WS_URL="${DEPLOY_WS_URL:-wss://shmax.praxisos.dev/api}"
+log "Build env: EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL} EXPO_PUBLIC_WS_URL=${EXPO_PUBLIC_WS_URL}"
 
 log "Building frontend (cd ${FRONTEND_DIR} && npm install && npx expo export --platform web --output-dir dist)..."
 if ! (cd "${FRONTEND_DIR}" && rm -rf dist && npm install && npx expo export --platform web --output-dir dist); then
