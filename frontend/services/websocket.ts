@@ -136,7 +136,7 @@ class WebSocketClient {
 
       case 'call_initiated':
         // Caller receives their call_id assignment — store it, but don't start WebRTC yet
-        useCallStore.setState({ callId: data.call_id });
+        useCallStore.setState({ callId: data.call_id, iceServers: data.ice_servers ?? null });
         break;
 
       case 'call_accepted':

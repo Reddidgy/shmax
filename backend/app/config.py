@@ -61,5 +61,29 @@ class Settings(BaseSettings):
                 return [s.strip() for s in v.split(",")]
         return v
 
+    def get_ice_servers(self) -> list[dict]:
+        """Build ICE server list from STUN + TURN env vars."""
+        servers = [{"urls": url} for url in self.STUN_SERVERS]
+        if self.TURN_SERVER_URL and self.TURN_SERVER_USERNAME and self.TURN_SERVER_CREDENTIAL:
+            turn_base = self.TURN_SERVER_URL.rstrip("/")
+            servers.extend([
+                {
+                    "urls": f"turn:{turn_base}",
+                    "username": self.TURN_SERVER_USERNAME,
+                    "credential": self.TURN_SERVER_CREDENTIAL,
+                },
+                {
+                    "urls": f"turn:{turn_base}:443?transport=tcp",
+                    "username": self.TURN_SERVER_USERNAME,
+                    "credential": self.TURN_SERVER_CREDENTIAL,
+                },
+                {
+                    "urls": f"turns:{turn_base}:443?transport=tcp",
+                    "username": self.TURN_SERVER_USERNAME,
+                    "credential": self.TURN_SERVER_CREDENTIAL,
+                },
+            ])
+        return servers
+
 
 settings = Settings()

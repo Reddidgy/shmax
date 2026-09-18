@@ -31,11 +31,13 @@ interface CallStoreState {
   networkQuality: NetworkQuality;
   callDuration: number;
   error: string | null;
+  iceServers: RTCIceServer[] | null;
 
   initiateCall: (peer: CallPeer) => Promise<void>;
   handleIncomingCall: (data: {
     call_id: string;
     caller: CallPeer;
+    ice_servers?: RTCIceServer[];
   }) => void;
   acceptCall: () => Promise<void>;
   declineCall: () => void;
@@ -91,9 +93,11 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
   networkQuality: 'unknown',
   callDuration: 0,
   error: null,
+  iceServers: null,
 
   initiateCall: async (peer: CallPeer) => {
     try {
+      const { iceServers } = get();
       const localStream = await webRTCService.initialize({
         onRemoteStream: (stream) => set({ remoteStream: stream }),
         onIceCandidate: (candidate) => {
@@ -128,7 +132,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
           }
         },
         onNetworkQuality: (quality) => set({ networkQuality: quality }),
-      });
+      }, iceServers ?? undefined);
 
       set({
         callState: 'outgoing',
@@ -169,6 +173,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
       callState: 'incoming',
       callId: data.call_id,
       caller: data.caller,
+      iceServers: data.ice_servers ?? null,
       error: null,
     });
 
@@ -186,6 +191,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
     clearTimers();
 
     try {
+      const { iceServers } = get();
       const localStream = await webRTCService.initialize({
         onRemoteStream: (stream) => set({ remoteStream: stream }),
         onIceCandidate: (candidate) => {
@@ -217,7 +223,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
           }
         },
         onNetworkQuality: (quality) => set({ networkQuality: quality }),
-      });
+      }, iceServers ?? undefined);
 
       set({
         callState: 'connecting',
@@ -256,6 +262,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
       callee: null,
       localStream: null,
       remoteStream: null,
+      iceServers: null,
       error: null,
     });
   },
@@ -286,6 +293,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
         callee: null,
         callDuration: 0,
         networkQuality: 'unknown',
+        iceServers: null,
         error: null,
       });
     }, 2000);
@@ -321,6 +329,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
         callId: null,
         caller: null,
         callee: null,
+        iceServers: null,
         error: null,
       });
     }, 2000);
@@ -342,6 +351,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
         callee: null,
         callDuration: 0,
         networkQuality: 'unknown',
+        iceServers: null,
         error: null,
       });
     }, 2000);
@@ -404,6 +414,7 @@ export const useCallStore = create<CallStoreState>((set, get) => ({
       isVideoEnabled: true,
       networkQuality: 'unknown',
       callDuration: 0,
+      iceServers: null,
       error: null,
     });
   },

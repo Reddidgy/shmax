@@ -10,6 +10,7 @@ from app.services.presence_service import set_online, set_offline
 from app.services.call_service import call_service
 from app.models.user import User
 from sqlalchemy import select
+from app.config import settings
 
 router = APIRouter()
 
@@ -233,11 +234,13 @@ async def websocket_endpoint(
                                     "display_name": caller_user.display_name,
                                     "avatar_url": caller_user.avatar_url,
                                 },
+                                "ice_servers": settings.get_ice_servers(),
                             }, callee_id)
 
                             await manager.send_personal_message({
                                 "type": "call_initiated",
                                 "call_id": call.call_id,
+                                "ice_servers": settings.get_ice_servers(),
                             }, user_id)
                         else:
                             print(f"[CALL] Caller user not found in DB: {user_id}")

@@ -7,9 +7,8 @@ import {
 
 export type NetworkQuality = 'good' | 'fair' | 'poor' | 'unknown';
 
-const ICE_SERVERS = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  { urls: 'stun:stun1.l.google.com:19302' },
+const FALLBACK_ICE_SERVERS: RTCIceServer[] = [
+  { urls: 'stun:stun.relay.metered.ca:80' },
 ];
 
 export interface WebRTCCallbacks {
@@ -27,7 +26,7 @@ class WebRTCService {
   private pendingCandidates: RTCIceCandidateInit[] = [];
   private hasRemoteDescription = false;
 
-  async initialize(callbacks: WebRTCCallbacks): Promise<MediaStream> {
+  async initialize(callbacks: WebRTCCallbacks, iceServers?: RTCIceServer[]): Promise<MediaStream> {
     this.callbacks = callbacks;
 
     this.localStream = await mediaDevicesImpl.getUserMedia({
@@ -41,7 +40,7 @@ class WebRTCService {
     });
 
     this.peerConnection = new RTCPeerConnectionImpl({
-      iceServers: ICE_SERVERS,
+      iceServers: iceServers ?? FALLBACK_ICE_SERVERS,
     });
 
     this.pendingCandidates = [];

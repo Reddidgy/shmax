@@ -7,6 +7,7 @@
 - Call state managed by frontend/store/callStore.ts Zustand store with idle/outgoing/incoming/connecting/connected/ended states
 - Call UI: frontend/components/CallScreen.tsx (full-screen) and frontend/components/IncomingCallOverlay.tsx (incoming notification)
 - ICE candidates are buffered in webrtc.ts until remote SDP is set, then flushed
+- ICE servers delivered dynamically via incoming_call and call_initiated WebSocket payloads from backend config
 
 This route governs real-time 1:1 video calling, including signaling, media streams, and call state management.
 
@@ -19,7 +20,7 @@ Enable users to make real-time 1:1 video calls from any platform. Video calls ar
 - Signaling: SDP offers/answers and ICE candidates exchanged via the existing FastAPI WebSocket server. Signaling is server-relayed, never peer-to-peer.
 - WebRTC Peer Connection: Once signaling completes, media flows directly between peers. The server is not in the media path unless TURN relay is needed.
 - Call States: idle -> outgoing (caller) / incoming (callee) -> connecting -> connected -> ended. Each state has specific UI and timeout rules.
-- STUN/TURN: Configured in backend/app/config.py via STUN_SERVERS, TURN_SERVER_URL, TURN_SERVER_USERNAME, TURN_SERVER_CREDENTIAL env vars. Google public STUN servers are defaults.
+- STUN/TURN: Configured in backend/app/config.py via STUN_SERVERS, TURN_SERVER_URL, TURN_SERVER_USERNAME, TURN_SERVER_CREDENTIAL env vars. Backend builds ICE server list via Settings.get_ice_servers() and delivers it to clients in call signaling payloads. Frontend falls back to Metered.ca free STUN if backend ICE config is unavailable.
 - ICE: The protocol that finds the best connection path between peers, trying direct, STUN-assisted, and TURN-relayed paths in order.
 - Network Quality: Monitored via RTCStatsReport packet loss ratio — good (<2%), fair (<5%), poor (>=5%).
 - CallService: In-memory singleton tracking active calls and user-to-call mappings. Prevents duplicate calls per user.
@@ -28,8 +29,8 @@ Enable users to make real-time 1:1 video calls from any platform. Video calls ar
 
 ### Signaling Flow
 1. Caller sends `call_initiate` via WebSocket with callee_id
-2. Server checks callee is online, creates call via CallService, sends `incoming_call` to callee with caller info
-3. Server sends `call_initiated` back to caller with call_id
+2. Server checks callee is online, creates call via CallService, sends `incoming_call` to callee with caller info and ice_servers list
+3. Server sends `call_initiated` back to caller with call_id and ice_servers list
 4. Callee accepts: sends `call_accept`, server forwards `call_accepted` to caller
 5. Caller creates WebRTC offer, sends `webrtc_offer` through server to callee
 6. Callee creates answer, sends `webrtc_answer` through server to caller
@@ -38,8 +39,8 @@ Enable users to make real-time 1:1 video calls from any platform. Video calls ar
 
 ### WebSocket Event Types
 - `call_initiate` — Caller starts a call (client -> server)
-- `incoming_call` — Server notifies callee of incoming call (server -> client)
-- `call_initiated` — Server confirms call_id to caller (server -> client)
+- `incoming_call` — Server notifies callee of incoming call with ice_servers config (server -> client)
+- `call_initiated` — Server confirms call_id to caller with ice_servers config (server -> client)
 - `call_accept` / `call_accepted` — Callee accepts (bidirectional relay)
 - `call_decline` / `call_declined` — Callee declines (bidirectional relay)
 - `call_end` / `call_ended` — Either party ends (bidirectional relay)
@@ -55,6 +56,9 @@ Enable users to make real-time 1:1 video calls from any platform. Video calls ar
 
 - Signaling always goes through the server; peers never exchange signaling data directly
 - TURN server must always be configured as a fallback; never assume direct connectivity will work
+- ICE server config must be delivered from backend to frontend dynamically; never hardcode ICE servers in frontend source
+- Frontend must fall back to FALLBACK_ICE_SERVERS (Metered.ca free STUN) if backend does not provide ice_servers
+- TURN config must include UDP, TCP, and TURNS (TLS on port 443) transports for firewall traversal
 - A call that fails to connect within 30 seconds must timeout and end, not hang indefinitely
 - Callee receives incoming_call WebSocket event immediately upon call initiation if online
 - Camera and microphone permissions must be obtained before initiating or accepting a call
